@@ -61,7 +61,7 @@ They will always stay perfectly centred and have a consistent size unless we man
 }
 
 .bg-black {
-    background: black !important;
+    background: black !important    ;
 }
 
 /* -------------------------------- Media Queries */
