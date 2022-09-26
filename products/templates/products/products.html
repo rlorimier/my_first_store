@@ -30,11 +30,11 @@
                                 <!-- The image portion of the card uses an if statement that renders the product image
                                 using the image fields URL attribute if an image exists. Or the default image from the media folder otherwise. -->
                                 {% if product.image %}
-                                <a href="">
+                                <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
                                 </a>
                                 {% else %}
-                                <a href="">
+                                <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
                                 </a>
                                 {% endif %}
