@@ -50,7 +50,7 @@
                 <!-- Our form will have a method of get, meaning we'll be submitting searches as url parameters.
                 Inside the form, we have a 100% width input group which contains a text input with the name of q for query. And that's what will be submitted to the action url.
                 Lastly we've got a button attached to the text input using the input group append class from bootstrap. Which contains a search icon from font awesome. -->
-                <form method="GET" action="">
+                <form method="GET" action="{% url 'products' %}">
                     <div class="input-group w-100">
                         <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
                         <div class="input-group-append">

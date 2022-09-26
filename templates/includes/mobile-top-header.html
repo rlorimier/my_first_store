@@ -9,7 +9,7 @@
     </a>
     <!-- the search form is now in a drop-down menu and there's nothing special about that just instead of creating a list of linkslike we did for the My Account drop-down. We put a form in it instead. -->
     <div class="dropdown-menu border-0 w-100 p-3 rounded-0 my-0" aria-labelledby="mobile-search">
-        <form class="form" method="GET" action="">
+        <form class="form" method="GET" action="{% url 'products' %}">
             <div class="input-group w-100">
                 <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
                 <div class="input-group-append">
