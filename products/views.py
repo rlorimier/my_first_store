@@ -10,8 +10,30 @@ def all_products(request):
     products = Product.objects.all()
     query = None
     categories = None
+    sort = None
+    direction = None
 
     if request.GET:
+
+        """first we check whether sort is in request.get If it is. We set it equal to both sort which will be none at this point. And sortkey
+        Then we rename sortkey to lower_name In the event, the user is sorting by name. Then we annotate the current list of products with a new field.
+        And check whether the direction is descending in order to decide whether to reverse the order.
+        Finally in order to actually sort the products all we need to do is use the order by model method."""   
+        if 'sort' in request.GET:
+            sortkey = request.GET['sort']
+            sort = sortkey
+            """in order to allow case-insensitive sorting on the name field, we need to first annotate all the products with a new field.
+            Annotation allows us to add a temporary field on a model """
+            if sortkey == 'name':
+                sortkey = 'lower_name'
+                products = products.annotate(lower_name=Lower('name'))
+
+            if 'direction' in request.GET:
+                direction = request.GET['direction']
+                if direction == 'desc':
+                    sortkey = f'-{sortkey}'
+            products = products.order_by(sortkey)
+
         """ we'll check whether it exists in requests.get. If it does I'm gonna split it into a list at the commas.
         And then use that list to filter the current query set of all products down to only products whose category name is in the list. """
         if 'category' in request.GET:
@@ -42,12 +64,16 @@ def all_products(request):
             # pass them to the filter method in order to actually filter the products.
             products = products.filter(queries)
 
+    #The last thing I want to do is return the current sorting methodology to the template.
+    current_sorting = f'{sort}_{direction}'
+    
     context = {
         'products': products,
         # Now add the query to the context. And in the template call it search term.
         # Start with it as none at the top of this view to ensure we don't get an error when loading the products page without a search term.
         'search_term': query,
         'current_categories': categories,
+        'current_sorting': current_sorting,
     }
 
     return render(request, 'products/products.html', context)
