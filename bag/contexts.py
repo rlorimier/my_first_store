@@ -10,32 +10,48 @@ we need to add it to the list of context processors in the templates variable in
 
 from decimal import Decimal
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from products.models import Product
 
 
 def bag_contents(request):
 
-    """First let's create an empty list for the bag items to live in. I'll also eventually need the total and 
-    the product count when we start adding things to the bag. So I'll initialize those now to zero."""
+    # First let's create an empty list for the bag items to live in. I'll also eventually need the total and 
+    # the product count when we start adding things to the bag. So I'll initialize those now to zero
     bag_itens = []
     total = 0
     product_count = 0
+    # Accessing the shopping bag, getting it if it already exists. Or initializing it to an empty dictionary if not
+    bag = request.session.get('bag', {})
 
-    """ in order to entice customers to purchase more. We're going to give them free delivery if they spend more than the amount 
-    specified in the free delivery threshold in settings.py."""
+    # We need to iterate through all the items in the shopping bag. And along the way, tally up the total cost and product count.
+    # And add the products and their data to the bag items list so we can display them on the shopping bag page and elsewhere throughout the site.
+    for item_id, quantity in bag.items():
+        product = get_object_or_404(Product, pk=item_id)
+        total += quantity * product.price
+        product_count += quantity
+        bag_items.append({
+            'item_id': item_id,
+            'quantity': quantity,
+            'product': product,
+        })
+
+    # in order to entice customers to purchase more. We're going to give them free delivery if they spend more than the amount
+    # specified in the free delivery threshold in settings.py
     if total < settings.FREE_DELIVERY_THRESHOLD:
         delivery = total * Decimal(settings.STANDARD_DELIVERY_PERCENTAGE/100)
 
-        """let's also let the user know how much more they need to spend"""
+        # let's also let the user know how much more they need to spend
         free_delivery_delta = settings.FREE_DELIVERY_THRESHOLD - total
     else:
-        """If the total is greater than or equal to the threshold let's set delivery and the free_delivery_delta to zero."""
+        # If the total is greater than or equal to the threshold let's set delivery and the free_delivery_delta to zero
         delivery = 0
         free_delivery_delta = 0
     
-    """to calculate the grand total. All I need to do is add the delivery charge to the total."""
+    # to calculate the grand total. All I need to do is add the delivery charge to the total
     grand_total = delivery + total
 
-    """we just need to add all these items to the context. So they'll be available in templates across the site."""
+    # we just need to add all these items to the context. So they'll be available in templates across the site
     context = {
         'bag_itens': bag_itens,
         'total': total,
