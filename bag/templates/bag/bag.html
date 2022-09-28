@@ -24,7 +24,7 @@
             <div class="col">
                 <!-- If there are items in the bag, I'll render this table. And if not let's just render a paragraph that says your bag is empty
                     and give users a link back to the products page. -->
-                {% if bag_items %}
+                {% if bag_itens %}
                     <div class="table-responsive rounded">
 
                         <table class="table table-sm table-borderless">
@@ -38,7 +38,7 @@
                                 </tr>
                             </thead>
 
-                            {% for item in bag_items %}
+                            {% for item in bag_itens %}
                                 <tr>
                                     <td class="p-3 w-25">
                                         <img class="img-fluid rounded" src="{{ item.product.image.url }}">
