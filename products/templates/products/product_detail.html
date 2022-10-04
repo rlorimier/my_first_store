@@ -53,8 +53,11 @@
                         <!-- As a security precaution without this token Django won't allow you to submit the form. -->
                         {% csrf_token %}
                         <div class="form-row">
-                            
+                            <!-- Using a with statement to assign product.has_sizes to a variable s, 
+                                So we can reuse it in one other spot -->
                             {% with product.has_sizes as s %}
+                            <!-- Now only if the product has sizes, inside this form row just above the quantity input.
+                                I'll add another column and paste in the select box. -->
                             {% if s %}
                                 <div class="col-12">
                                     <p><strong>Size:</strong></p>
