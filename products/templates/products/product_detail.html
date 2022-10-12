@@ -95,6 +95,7 @@
                                 Which will contain the current URL. By sending the current URL to the view we'll post this form too.
                                 We can redirect the user back to the same page once the product is added to their bag. -->
                             <input type="hidden" name="redirect_url" value="{{ request.path }}">
+                            {% endwith %}
                         </div>
                     </form>
 
