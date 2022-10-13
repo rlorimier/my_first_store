@@ -1,0 +1,20 @@
+<!-- These toasts will be small HTML snippets that will pop up when a user performs an action. 
+The structure for this comes from the bootstrap documentation.-->
+<!-- Almost everything here is straight from bootstrap. With the exception of our custom toast class.
+And these two divs at the top. Which will just add a little extra visual touch to the top of the notification. -->
+<!-- The data auto-hide and data dismiss attributes are required to prevent auto-hiding the notification after a few seconds.
+And instead, give the user the ability to dismiss it on their own. -->
+<div class="toast custom-toast rounded-0 border-top-0" data-autohide="false">
+    <div class="arrow-up arrow-warning"></div>
+    <div class="w-100 toast-capper bg-warning"></div>
+    <div class="toast-header bg-white text-dark">
+        <strong class="mr-auto">Warning!</strong>
+        <button type="button" class="ml-2 mb-1 close text-dark" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body bg-white">
+        <!-- this is going to be included in the message container in the base template. -->
+        {{ message }}        
+    </div>
+</div>
