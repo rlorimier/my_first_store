@@ -1,33 +1,93 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
 import stripe
 from bag.contexts import bag_contents
 from .forms import OrderForm
+from .models import Order, OrderLineItem
+from products.models import Product
 
 
 def checkout(request):
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
     stripe_secret_key = settings.STRIPE_SECRET_KEY
 
-    #I'll get the bag from the session. And if there's nothing in the bag just add a simple error message.
-    #And redirect back to the products page. This will prevent people from manually accessing the URL by typing /checkout
-    bag = request.session.get('bag', {})
-    if not bag:
-        messages.error(request, "There's nothing in your bag at the moment")
-        return redirect(reverse('products'))
+    # when a user submits their payment information We also create the order in the database And redirect them to a success page.
+    if request.method == 'POST':
+        bag = request.session.get('bag', {})
 
-    current_bag = bag_contents(request)
-    total = current_bag['grand_total']
-    stripe_total = round(total * 100)
-    stripe.api_key = stripe_secret_key
-    # create the payment intent with giving it the amount and the currency.
-    intent = stripe.PaymentIntent.create(
-        amount=stripe_total,
-        currency=settings.STRIPE_CURRENCY,
-    )
+        form_data = {
+            'full_name': request.POST['full_name'],
+            'email': request.POST['email'],
+            'phone_number': request.POST['phone_number'],
+            'country': request.POST['country'],
+            'postcode': request.POST['postcode'],
+            'town_or_city': request.POST['town_or_city'],
+            'street_address1': request.POST['street_address1'],
+            'street_address2': request.POST['street_address2'],
+            'county': request.POST['county'],
+        }
+        order_form = OrderForm(form_data)
 
-    order_form = OrderForm()
+        # If the form is valid we'll save the order. And then we need to iterate through the bag items to create each line item.
+        if order_form.is_valid():
+            order = order_form.save()
+            for item_id, item_data in bag.items():
+                try:
+                    # we get the Product ID out of the bag Then if its value is an integer we know its an item that doesn't have sizes So the quantity will be the item data
+                    product = Product.objects.get(id=item_id)
+                    if isinstance(item_data, int):
+                        order_line_item = OrderLineItem(
+                            order=order,
+                            product=product,
+                            quantity=item_data,
+                        )
+                        order_line_item.save()
+                    # if the item has sizes. we'll iterate through each size and create a line item accordingly.
+                    else:
+                        for size, quantity in item_data['items_by_size'].items():
+                            order_line_item = OrderLineItem(
+                                order=order,
+                                product=product,
+                                quantity=quantity,
+                                product_size=size,
+                            )
+                            order_line_item.save()
+                # just in case a product isn't found we'll add an error message. Delete the empty order and return the user to the shopping bag page.
+                except Product.DoesNotExist:
+                    messages.error(request, (
+                        "One of the products in your bag wasn't found in our database. "
+                        "Please call us for assistance!")
+                    )
+                    order.delete()
+                    return redirect(reverse('view_bag'))
+
+            # We'll attach whether or not the user wanted to save their profile information to the session. And then redirect them to a new page.
+            request.session['save_info'] = 'save-info' in request.POST
+            return redirect(reverse('checkout_success', args=[order.order_number]))
+        else:
+            messages.error(request, 'There was an error with your form. \
+                Please double check your information.')
+
+    else:
+        #I'll get the bag from the session. And if there's nothing in the bag just add a simple error message.
+        #And redirect back to the products page. This will prevent people from manually accessing the URL by typing /checkout
+        bag = request.session.get('bag', {})
+        if not bag:
+            messages.error(request, "There's nothing in your bag at the moment")
+            return redirect(reverse('products'))
+
+        current_bag = bag_contents(request)
+        total = current_bag['grand_total']
+        stripe_total = round(total * 100)
+        stripe.api_key = stripe_secret_key
+        # create the payment intent with giving it the amount and the currency.
+        intent = stripe.PaymentIntent.create(
+            amount=stripe_total,
+            currency=settings.STRIPE_CURRENCY,
+        )
+
+        order_form = OrderForm()
 
     if not stripe_public_key:
         messages.warning(request, 'Stripe public key is missing. \
@@ -38,6 +98,31 @@ def checkout(request):
         'order_form': order_form,
         'stripe_public_key': stripe_public_key,
         'client_secret': intent.client_secret,
+    }
+
+    return render(request, template, context)
+
+
+def checkout_success(request, order_number):
+    """
+    Handle successful checkouts
+    """
+    # we'll want to first check whether the user wanted to save their information by getting that from the session
+    save_info = request.session.get('save_info')
+    order = get_object_or_404(Order, order_number=order_number)
+    # I'll attach a success message letting the user know what their order number is And that will be sending an email to the email they put in the form.
+    messages.success(request, f'Order successfully processed! \
+        Your order number is {order_number}. A confirmation \
+        email will be sent to {order.email}.')
+
+    # I'll delete the user shopping bag from the session since it'll no longer be needed for this session.
+    if 'bag' in request.session:
+        del request.session['bag']
+
+    # Set the template and the context. And render the template.
+    template = 'checkout/checkout_success.html'
+    context = {
+        'order': order,
     }
 
     return render(request, template, context)
