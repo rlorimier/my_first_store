@@ -52,7 +52,11 @@ def checkout(request):
 
         # If the form is valid we'll save the order. And then we need to iterate through the bag items to create each line item.
         if order_form.is_valid():
-            order = order_form.save()
+            order = order_form.save(commit=False)
+            pid = request.POST.get('client_secret').split('_secret')[0]
+            order.stripe_pid = pid
+            order.original_bag = json.dumps(bag)
+            order.save()
             for item_id, item_data in bag.items():
                 try:
                     # we get the Product ID out of the bag Then if its value is an integer we know its an item that doesn't have sizes So the quantity will be the item data

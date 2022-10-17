@@ -16,14 +16,16 @@ class OrderAdmin(admin.ModelAdmin):
     # So we don't want anyone to have the ability to edit them since it could compromise the integrity of an order.
     readonly_fields = ('order_number', 'date',
                        'delivery_cost', 'order_total',
-                       'grand_total',)
+                       'grand_total', 'original_bag',
+                       'stripe_pid')
 
     #it will allow us to specify the order of the fields in the admin interface which would otherwise be adjusted by django due to the use of some read-only fields.
     fields = ('order_number', 'date', 'full_name',
               'email', 'phone_number', 'country',
               'postcode', 'town_or_city', 'street_address1',
               'street_address2', 'county', 'delivery_cost',
-              'order_total', 'grand_total',)
+              'order_total', 'grand_total', 'original_bag',
+              'stripe_pid')
 
     #I'll use the list display option. To restrict the columns that show up in the order list to only a few key items.
     list_display = ('order_number', 'date', 'full_name',

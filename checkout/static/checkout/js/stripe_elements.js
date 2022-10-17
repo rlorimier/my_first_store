@@ -27,7 +27,6 @@ var style = {
 var card = elements.create('card', {style: style});
 card.mount('#card-element');
 
-
 // Handle realtime validation errors on the card element
 card.addEventListener('change', function (event) {
     var errorDiv = document.getElementById('card-errors');
@@ -49,7 +48,6 @@ var form = document.getElementById('payment-form');
 
 form.addEventListener('submit', function(ev) {
     ev.preventDefault();
-    // to disable both the card element and the submit button to prevent multiple submissions.
     card.update({ 'disabled': true});
     $('#submit-button').attr('disabled', true);
     $('#payment-form').fadeToggle(100);
@@ -99,10 +97,9 @@ form.addEventListener('submit', function(ev) {
                 var errorDiv = document.getElementById('card-errors');
                 var html = `
                     <span class="icon" role="alert">
-                        <i class="fas fa-times"></i>
+                    <i class="fas fa-times"></i>
                     </span>
                     <span>${result.error.message}</span>`;
-                // if there is an error to re-enable the card element and the submit button to allow the user to fix it.
                 $(errorDiv).html(html);
                 $('#payment-form').fadeToggle(100);
                 $('#loading-overlay').fadeToggle(100);
