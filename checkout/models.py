@@ -7,8 +7,6 @@ from products.models import Product
 
 
 class Order(models.Model):
-    # Postcode and County will not be required as those components don't exist in every Country, blank=True.
-    # the editable=false attribute, number to be automatically generate as we want it to be unique and permanent so users can find their previous orders.
     order_number = models.CharField(max_length=32, null=False, editable=False)
     full_name = models.CharField(max_length=50, null=False, blank=False)
     email = models.EmailField(max_length=254, null=False, blank=False)
@@ -18,10 +16,8 @@ class Order(models.Model):
     town_or_city = models.CharField(max_length=40, null=False, blank=False)
     street_address1 = models.CharField(max_length=80, null=False, blank=False)
     street_address2 = models.CharField(max_length=80, null=True, blank=True)
-    county = models.CharField(max_length=80, null=True, blank=True
-    # the auto now add attribute will automatically set the order date and time whenever a new order is created.
+    county = models.CharField(max_length=80, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
-    # the last three fields will be calculated using a model method whenever an order is saved.
     delivery_cost = models.DecimalField(max_digits=6, decimal_places=2, null=False, default=0)
     order_total = models.DecimalField(max_digits=10, decimal_places=2, null=False, default=0)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, null=False, default=0)
