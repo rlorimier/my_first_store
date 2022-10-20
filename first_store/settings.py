@@ -121,16 +121,18 @@ WSGI_APPLICATION = 'first_store.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-# DATABASES = {
-#     'default': dj_database_url.parse('postgres://umlcqtnasqnfxk:16b26ded876077d8ae58d01fa66f79b9b97c41a8416efbc01a1ccb689b42de93@ec2-34-242-84-130.eu-west-1.compute.amazonaws.com:5432/d87sfkke6gt36k')
-# }
 
 
 # Password validation
