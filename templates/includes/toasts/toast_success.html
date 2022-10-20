@@ -28,10 +28,10 @@
                     <div class="row">
                         <!-- The first column will contain the image. -->
                         <div class="col-3 my-1">
-                            {% if product.image %}
-                            <img class="w-100" src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% if item.product.image %}
+                            <img class="img-fluid rounded" src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
                             {% else %}
-                            <img class="w-100" src="{{ MEDIA_URL }}noimage.png" alt="{{ item.product.name }}">                            
+                            <img class="img-fluid rounded" src="{{ MEDIA_URL }}noimage.png" alt="{{ item.product.name }}">
                             {% endif %}
                         </div>
                         <!-- And the other 75% of the row will have a paragraph for the items name. Size if it's applicable and the quantity in the bag. -->
