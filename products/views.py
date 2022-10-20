@@ -103,9 +103,9 @@ def add_product(request):
         form = ProductForm(request.POST, request.FILES)
         # simply check if form.is_valid. And if so we'll save it. Add a simple success message. And redirect to the same view.
         if form.is_valid():
-            form.save()
+            product = form.save()
             messages.success(request, 'Successfully added product!')
-            return redirect(reverse('add_product'))
+            return redirect(reverse('product_detail', args=[product.id]))
         # If there are any errors on the form We'll attach a generic error message telling the user to check their form which will display the errors.
         else:
             messages.error(request, 'Failed to add product. Please ensure the form is valid.')
@@ -142,3 +142,11 @@ def edit_product(request, product_id):
     }
 
     return render(request, template, context)
+
+
+def delete_product(request, product_id):
+    """ Delete a product from the store """
+    product = get_object_or_404(Product, pk=product_id)
+    product.delete()
+    messages.success(request, 'Product deleted!')
+    return redirect(reverse('products'))
